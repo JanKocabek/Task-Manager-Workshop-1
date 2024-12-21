@@ -8,16 +8,58 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class TaskManager {
     public static void main(String[] args) {
         System.out.println("Welcome to Task Manager");
         System.out.println("System will now read all the tasks from the task.csv file");
         final var tasks = loadTasks();
-        showTasks(tasks);
-        saveTask(tasks);
-        //Scanner scan = new Scanner(System.in);
-        //saveTask(tasks);
+        Scanner scan = new Scanner(System.in);
+        boolean isEnd = false;
+        menu();
+        while (!isEnd) {
+            System.out.print("Please enter your choice:");
+            switch (scan.nextLine()) {
+                case "add":
+                    addTask(tasks);
+                    break;
+                case "remove":
+                    deleteTask(tasks);
+                    break;
+                case "list":
+                    showTasks(tasks);
+                    break;
+                case "exit":
+                    isEnd = true;
+                    break;
+                case "?":
+                    menu();
+                    break;
+                default:
+                    System.out.println("Invalid option\nType valid option or \"?\" for menu");
+                    break;
+            }
+            saveTask(tasks);
+        }
+    }
+
+    private static void deleteTask(String[][] tasks) {
+
+    }
+
+    private static void addTask(String[][] tasks) {
+
+    }
+
+    private static void menu() {
+        System.out.println();
+        System.out.println("Welcome to Task Manager");
+        System.out.println("1. Add a new task - add");
+        System.out.println("2. Delete a task - remove");
+        System.out.println("3. Show all tasks - list");
+        System.out.println("4. Save and Exit - exit");
+        System.out.println("#######################");
     }
 
     private static String[][] loadTasks() {
@@ -51,9 +93,9 @@ public class TaskManager {
     private static void saveTask(String[][] tasks) {
         Path pathFile = Paths.get("tasks.csv");
         if (Files.exists(pathFile)) {
-            ArrayList<String> tasksList= new ArrayList<>(Arrays.asList(convertToStrings(tasks)));
+            ArrayList<String> tasksList = new ArrayList<>(Arrays.asList(convertToStrings(tasks)));
             try {
-                Files.write(pathFile,tasksList);
+                Files.write(pathFile, tasksList);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -73,10 +115,11 @@ public class TaskManager {
         }
         return arr;
     }
-    private static String[]convertToStrings(String[][] tasks) {
+
+    private static String[] convertToStrings(String[][] tasks) {
         String[] tasksInStr = new String[tasks.length];
         int i = 0;
-        for(String[] task : tasks) {
+        for (String[] task : tasks) {
             tasksInStr[i] = String.join(",", task);
             i++;
         }
