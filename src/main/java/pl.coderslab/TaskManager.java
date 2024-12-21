@@ -8,9 +8,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 public class TaskManager {
     public static void main(String[] args) {
@@ -18,6 +15,7 @@ public class TaskManager {
         System.out.println("System will now read all the tasks from the task.csv file");
         final var tasks = loadTasks();
         showTasks(tasks);
+        saveTask(tasks);
         //Scanner scan = new Scanner(System.in);
         //saveTask(tasks);
     }
@@ -27,7 +25,7 @@ public class TaskManager {
         String[][] tasks = new String[0][];
         try {
             if (Files.exists(pathFile)) {
-                tasks = listTo2dArr(Files.readAllLines(pathFile, StandardCharsets.UTF_8));
+                tasks = listTo2DArr(Files.readAllLines(pathFile, StandardCharsets.UTF_8));
                 System.out.println("Task were successfully loaded from tasks.csv");
             } else {
                 System.out.println("File tasks.csv not found!");
@@ -50,25 +48,39 @@ public class TaskManager {
         return tasks;
     }
 
-    private static void saveTask(ArrayList<String> list) {
+    private static void saveTask(String[][] tasks) {
         Path pathFile = Paths.get("tasks.csv");
         if (Files.exists(pathFile)) {
-
+            ArrayList<String> tasksList= new ArrayList<>(Arrays.asList(convertToStrings(tasks)));
+            try {
+                Files.write(pathFile,tasksList);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private static String[][] listTo2dArr(List<String> list) {
+    private static void showTasks(String[][] tasks) {
+        for (String[] task : tasks) {
+            System.out.println(String.join(",", task));
+        }
+    }
+
+    private static String[][] listTo2DArr(List<String> list) {
         String[][] arr = new String[list.size()][3];
         for (int i = 0; i < list.size(); i++) {
             arr[i] = list.get(i).split(",");
         }
         return arr;
     }
-    private static void showTasks(String[][] tasks)
-    {
-        for(String[] task : tasks)
-        {
-            System.out.println(String.join(",", task));
+    private static String[]convertToStrings(String[][] tasks) {
+        String[] tasksInStr = new String[tasks.length];
+        int i = 0;
+        for(String[] task : tasks) {
+            tasksInStr[i] = String.join(",", task);
+            i++;
         }
+        return tasksInStr;
     }
+
 }
