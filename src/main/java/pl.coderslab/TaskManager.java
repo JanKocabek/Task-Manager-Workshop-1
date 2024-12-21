@@ -1,6 +1,7 @@
 package pl.coderslab;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,32 +18,50 @@ public class TaskManager {
     private static String[][] tasks;
 
     public static void main(String[] args) {
-
         System.out.println("Starting Task Manager 1.0");
         tasks = loadTasks();
         scan = new Scanner(System.in);
         boolean isEnd = false;
-        displayMenu();
-        while (!isEnd) {
+        do {
+            displayMenu();
             System.out.print("\nPlease enter your choice:");
             switch (scan.nextLine()) {
                 case "add" -> addTask();
                 case "remove" -> deleteTask();
                 case "list" -> showTasks();
                 case "exit" -> isEnd = true;
-                case "?" -> displayMenu();
-                default -> System.out.println("Invalid option\nType valid option or \"?\" for menu");
+                //case "?" -> displayMenu();
+                default -> System.out.println("Invalid option!\nType valid option:");
             }
-        }
+        } while (!isEnd);
         saveTask();
         scan.close();
-
     }
 
     private static void deleteTask() {
-        System.out.println("Write the number of tasks you want to remove from the list:");
-        System.out.print("if you don't know the number of tasks write \"?\" or \"exit\" to exit:");
-
+        System.out.println("\nWrite the number of tasks you want to remove from the list");
+        System.out.print("if you don't know the number of tasks write \"?\" or \"exit\" to return to the main menu:");
+        do {
+            String input = scan.nextLine();
+            if (NumberUtils.isDigits(input)) {
+                int num = Integer.parseInt(input);
+                if (num >= 0 && num < tasks.length) {
+                    tasks = ArrayUtils.remove(tasks, num);
+                    System.out.printf("Task N.%d deleted successfully", num);
+                    break;
+                }
+                System.out.printf("In the list isn't task number %d, please try again:", num);
+                continue;
+            }
+            if (input.equals("?")) {
+                showTasks();
+                System.out.print("Write the number of tasks you want to remove from the list: ");
+                continue;
+            }
+            if (input.equals("exit")) break;
+            System.out.println("Invalid input!");
+            System.out.print("if you don't know the number of tasks write \"?\" or \"exit\" to return to the main menu: :");
+        } while (true);
     }
 
     private static void addTask() {
