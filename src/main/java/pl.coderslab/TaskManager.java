@@ -18,20 +18,20 @@ public class TaskManager {
     private static String[][] tasks;
 
     public static void main(String[] args) {
-        System.out.println("Starting Task Manager 1.0");
+        System.out.printf("%sStarting Task Manager 1.0%s\n", GREEN_BOLD_BRIGHT, RESET);
         tasks = loadTasks();
         scan = new Scanner(System.in);
         boolean isEnd = false;
         displayMenu();
         do {
             System.out.printf("\n%sPlease enter your choice:%s", BLUE_BOLD_BRIGHT, RESET);
-            switch (scan.nextLine()) {
+            switch (scan.nextLine().toLowerCase()) {
                 case "add" -> addTask();
                 case "remove" -> removeTask();
                 case "show" -> showTasks();
                 case "exit" -> isEnd = true;
                 case "?" -> displayMenu();
-                default -> System.out.println("Invalid option!");
+                default -> System.out.printf("%sInvalid option!%s", RED_BOLD_BRIGHT, RESET);
             }
         } while (!isEnd);
         saveTask();
@@ -39,18 +39,18 @@ public class TaskManager {
     }
 
     private static String[][] loadTasks() {
-        System.out.println("System will now read all the tasks from the task.csv file");
+        System.out.printf("%sSystem will now read all the tasks from the task.csv file%s\n", YELLOW_BOLD_BRIGHT, RESET);
         Path pathFile = Paths.get("tasks.csv");
         String[][] tasks = new String[0][];
         try {
             if (Files.exists(pathFile)) {
                 tasks = listTo2DArr(Files.readAllLines(pathFile, StandardCharsets.UTF_8));
-                System.out.println("Task were successfully loaded from tasks.csv");
+                System.out.printf("%sTask were successfully loaded from tasks.csv%s\n", GREEN_BOLD_BRIGHT, RESET);
             } else {
-                System.out.println("File tasks.csv not found!");
-                System.out.println("Program will try create new file");
+                System.out.printf("%sFile tasks.csv not found!%s\n", RED_BOLD_BRIGHT, RESET);
+                System.out.printf("%sProgram will try create new file%s\n", YELLOW_BOLD_BRIGHT, RESET);
                 Files.createFile(pathFile);
-                System.out.println("File tasks.csv successfully created");
+                System.out.printf("%sFile tasks.csv successfully created%s\n", GREEN_BOLD_BRIGHT, RESET);
             }
             return tasks;
         } catch (IOException e) {
@@ -62,7 +62,7 @@ public class TaskManager {
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-            System.out.println("File tasks.csv successfully created");
+            System.out.printf("%sFile tasks.csv successfully created%s\n", GREEN_BOLD_BRIGHT, RESET);
         }
         return tasks;
     }
@@ -78,11 +78,15 @@ public class TaskManager {
     }
 
     private static void showTasks() {
-        int i = 0;
-        System.out.println("\nTask List:");
-        for (String[] task : tasks) {
-            System.out.printf("%d. %s\n", i, String.join(",", task));
-            i++;
+        System.out.printf("\n%sTask List:%s\n", GREEN_BOLD_BRIGHT, RESET);
+        for (int i = 0; i < tasks.length; i++) {
+            var task = tasks[i];
+            switch (task[2].trim()) {
+                case "true" ->
+                        System.out.printf("%s%d. %s%s%s\n", GREEN_BOLD_BRIGHT, i+1, RED_BOLD_BRIGHT, String.join(",", task), RESET);
+                case "false" ->
+                        System.out.printf("%s%d. %s%s%s\n", GREEN_BOLD_BRIGHT, i+1, BLUE_BOLD_BRIGHT, String.join(",", task), RESET);
+            }
         }
     }
 
@@ -90,8 +94,8 @@ public class TaskManager {
         final var taskStrSize = 3;
         int taskNum = tasks.length + 1;
         String[] task = new String[taskStrSize];
-        System.out.printf("\nAdding new task N.%d:\n", taskNum);
-        System.out.print("Write the description of the task: ");
+        System.out.printf("\n%sAdding new task N.%d:%s\n", GREEN_BOLD_BRIGHT,taskNum, RESET);
+        System.out.printf("%sWrite the description of the task:%s ",BLUE_BOLD_BRIGHT,RESET);
         task[0] = scan.nextLine();
         System.out.print("Write the deadline of the task -in the format YYYY-MM-DD: ");
         task[1] = " %s".formatted(scan.nextLine());
@@ -106,14 +110,14 @@ public class TaskManager {
     }
 
     private static void removeTask() {
-        System.out.println("\nWrite the number of tasks you want to remove from the list");
-        System.out.print("if you don't know the number of tasks write \"?\" or \"exit\" to return to the main menu:");
+        System.out.printf("\n%sWrite the number of the task you want to remove from the list%s\n", BLUE_BOLD_BRIGHT, RESET);
+        System.out.printf("%sif you don't know the number of the task write \"%s?%s\" or \"%sexit%s\" to return to the main menu:%s", BLUE_BOLD_BRIGHT,YELLOW_BOLD_BRIGHT,BLUE_BOLD_BRIGHT,YELLOW_BRIGHT,BLUE_BOLD_BRIGHT, RESET);
         do {
-            String input = scan.nextLine();
+            String input = scan.nextLine().toLowerCase();
             if (NumberUtils.isDigits(input)) {
-                int num = Integer.parseInt(input);
-                if (num >= 0 && num < tasks.length) {
-                    tasks = ArrayUtils.remove(tasks, num);
+                int num = Integer.parseInt(input);//
+                if (num >= 1 && num <= tasks.length) {
+                    tasks = ArrayUtils.remove(tasks, num-1);//real index is from 0 but user see tasks from 1
                     System.out.printf("Task N.%d deleted successfully", num);
                     break;
                 }
@@ -122,7 +126,7 @@ public class TaskManager {
             }
             if (input.equals("?")) {
                 showTasks();
-                System.out.print("Write the number of tasks you want to remove from the list: ");
+                System.out.printf("%sWrite the number of tasks you want to remove from the list:%s ", BLUE_BOLD_BRIGHT, RESET);
                 continue;
             }
             if (input.equals("exit")) break;
@@ -136,10 +140,10 @@ public class TaskManager {
         if (Files.exists(pathFile)) {
             final var data = new StringBuilder();
             for (String[] task : tasks) {
-                for (String s : task) {
-                    data.append(s).append(",");
+                for (int i = 0; i < task.length - 1; i++) {
+                    data.append(task[i]).append(",");
                 }
-                data.append(System.lineSeparator());
+                data.append(task[task.length - 1]).append(System.lineSeparator());//after last part shouldn't be "," but only lineSeparator
             }
             try {
                 Files.writeString(pathFile, data);
