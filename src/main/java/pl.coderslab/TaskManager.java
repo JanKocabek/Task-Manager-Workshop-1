@@ -8,8 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -26,7 +24,7 @@ public class TaskManager {
         boolean isEnd = false;
         displayMenu();
         do {
-            System.out.printf( "\n%sPlease enter your choice:%s",BLUE_BOLD_BRIGHT, RESET);
+            System.out.printf("\n%sPlease enter your choice:%s", BLUE_BOLD_BRIGHT, RESET);
             switch (scan.nextLine()) {
                 case "add" -> addTask();
                 case "remove" -> removeTask();
@@ -136,10 +134,15 @@ public class TaskManager {
     private static void saveTask() {
         Path pathFile = Paths.get("tasks.csv");
         if (Files.exists(pathFile)) {
-            //ArrayList<String> tasksList = new ArrayList<>(Arrays.asList(convertToStrings()));
-
+            final var data = new StringBuilder();
+            for (String[] task : tasks) {
+                for (String s : task) {
+                    data.append(s).append(",");
+                }
+                data.append(System.lineSeparator());
+            }
             try {
-                Files.write(pathFile, tasksList);
+                Files.writeString(pathFile, data);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -153,15 +156,4 @@ public class TaskManager {
         }
         return arr;
     }
-
-    private static String[] convertToStrings() {
-        String[] tasksInStr = new String[tasks.length];
-        int i = 0;
-        for (String[] task : tasks) {
-            tasksInStr[i] = String.join(",", task);
-            i++;
-        }
-        return tasksInStr;
-    }
-
 }
